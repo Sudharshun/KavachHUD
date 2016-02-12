@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+  
+    <title>Kavach Sai Final</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+
+	<link rel="stylesheet" href="bootstrap/css/main.css">
+    
+	<script type="text/javascript" src="bootstrap/js/jquery.js"></script>
+	<script type="text/javascript" src="bootstrap/js/tagcanvas.min.js?2.2"></script>
+    <script type="text/javascript" src="bootstrap/js/tweeter2.min.js"></script>
+    <style>
+div.fixed {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 100px;
+    border: 1px solid #73AD21;
+	z-index:9999;
+}
+
+div.fixedleft {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100px;
+    height:120px;
+    border: 1px solid #73AD21;
+	z-index:9999;
+}
+#mapdiv {
+	margin: 0;
+	padding: 0;
+	width: 100px;
+	height: 100px;
+	z-index:9999;
+
+}
+
+</style>
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=true"></script>
+
+<script>
+	var watchId = null;
+	function geoloc() {
+	if (navigator.geolocation) {
+		var optn = {
+				enableHighAccuracy : true,
+				timeout : 60000,
+				maximumAge : 0
+		};
+	watchId = navigator.geolocation.watchPosition(showPosition, showError, optn);
+	} else {
+			alert('Geolocation is not supported in your browser');
+	}
+	}
+
+function showPosition(position) {
+		var googlePos = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+		var mapOptions = {
+			zoom : 12,
+			center : googlePos,
+			mapTypeId : google.maps.MapTypeId.ROADMAP
+		};
+		var mapObj = document.getElementById('mapdiv');
+		document.getElementById('latText').innerHTML="<b>"+googlePos+"</b>";
+		var googleMap = new google.maps.Map(mapObj, mapOptions);
+		var markerOpt = {
+			map : googleMap,
+			position : googlePos,
+			title : 'Hi , I am here',
+			animation : google.maps.Animation.DROP
+		};
+		var googleMarker = new google.maps.Marker(markerOpt);
+		var geocoder = new google.maps.Geocoder();
+		geocoder.geocode({
+			'latLng' : googlePos
+			}, function(results, status) {
+				if (status == google.maps.GeocoderStatus.OK) {
+				if (results[1]) {
+					var popOpts = {
+						content : results[1].formatted_address,
+						position : googlePos
+					};
+				var popup = new google.maps.InfoWindow(popOpts);
+				google.maps.event.addListener(googleMarker, 'click', function() {
+				popup.open(googleMap);
+			});
+				} else {
+					alert('No results found');
+				}
+				} else {
+					alert('Geocoder failed due to: ' + status);
+				}
+			});
+			}
+
+			function stopWatch() {
+				if (watchId) {
+					navigator.geolocation.clearWatch(watchId);
+					watchId = null;
+
+				}
+			}
+
+		function showError(error) {
+		var err = document.getElementById('mapdiv');
+		switch(error.code) {
+		case error.PERMISSION_DENIED:
+		err.innerHTML = "User denied the request for Geolocation."
+		break;
+		case error.POSITION_UNAVAILABLE:
+		err.innerHTML = "Location information is unavailable."
+		break;
+		case error.TIMEOUT:
+		err.innerHTML = "The request to get user location timed out."
+		break;
+		case error.UNKNOWN_ERROR:
+		err.innerHTML = "An unknown error occurred."
+		break;
+		}
+		}
+		</script>
+
+  </head>
+
+
+<body onload="geoloc()">
+<div id="startpage" class="display-table">
+
+	<div id="intro" class="display-table-cell">
+		<p>Prepare the Mobilephone to insert in the Cardboard</p>
+		<p><b>IMPORTANT: Before you close the Cardboard</b></p>
+		<p>click the HUD Button</p>
+		
+
+		<button class="fullscreen">HUD</button>
+	</div>
+
+</div>
+
+
+
+<div id="bgimage-safe" class="window camera"></div>
+<div id="shoot"></div>
+
+
+
+<div class="bg-left">
+
+	<div id="messages" class="display-tablex">
+		<div id="interact-text" class="counter display-table-cellx"></div>
+	</div>
+	
+	<div class="sucher">+</div>	
+	
+</div>
+
+
+
+<div class="bg-right">
+
+	<div id="mright" class="display-tablex">
+	</div>
+	
+	<div class="sucher">+</div>	
+	
+</div>
+
+
+<!--[if lt IE 9]>
+    <script type="text/javascript" src="js/excanvas.js"></script>
+<![endif]-->
+<div id="commandsright" class="fixed"><iframe width="100" height="75" src="//www.youtube.com/embed/MZAf5q99e6w?autoplay=1" frameborder="0" allowfullscreen></iframe></div>
+<div id="commandsleft" class="fixedleft"> 
+<div id="mapdiv"></div><br/><p id="latText"></p></div>
+<div class='loader'>
+    <div class="bubblingG">
+		<span id="bubblingG_1"></span>
+		<span id="bubblingG_2"></span>
+		<span id="bubblingG_3"></span>
+    </div>
+</div>
+
+<div id="myCanvasContainer" class="">
+    <canvas width="300px" height="300px" id="myCanvas">
+        <p>Your browser doesn't support canvas. Get a new browser :|</p>
+    </canvas>
+</div>
+
+
+<div id="tags">
+    <ul></ul>
+</div>
+
+
+
+
+<div id="webglviewer"></div>
+
+
+
+<script>
+
+$(function(){
+	$("#messages").clone().prop({ id: "messages-right", name: "im-a-clone" }).appendTo("#mright");
+});
+
+(function () {
+	  var count = 0;
+
+	  $('#bgimage-safe, .sucher').click(function(e) {
+		  e.preventDefault();
+	    count += 1;
+
+	    if (count == 1) {
+
+	    	$('#shoot').addClass("flash");
+	        setTimeout( function(){
+	            $("#shoot").removeClass("flash");
+	        }, 500);
+	        
+	        $('video').addClass('display-none');
+	    	$('#messages, #messages-right').addClass('foreground');
+	    	$('#webglviewer').addClass('background');
+	        $('.counter').addClass('shoot-1');
+	      }
+	    
+	    if (count == 2) {
+	    	$('#shoot').addClass("flash");
+	        setTimeout( function(){
+	            $("#shoot").removeClass("flash");
+	        }, 500);
+	        $('.counter').addClass('shoot-2');
+	      }
+	    
+	    if (count == 3) {
+	    	$('#shoot').addClass("flash");
+	        setTimeout( function(){
+	            $("#shoot").removeClass("flash");
+	        }, 500);
+	        $('.counter').addClass('shoot-3');
+	        $('video').addClass('display-none');
+	      }
+	    
+	    if (count == 4) {
+	    	$('#shoot').addClass("flash");
+	        setTimeout( function(){
+	            $("#shoot").removeClass("flash");
+	        }, 500);
+	        $('.counter').addClass('shoot-4');
+	        
+	        
+	        // $('#webglviewer').fadeOut(1200, function(){ $(this).remove(); });
+	        
+	        $('#myCanvasContainer').fadeOut(1400, function(){ $(this).remove(); });
+	        
+	        $('#bgimage-safe').addClass('showpeople');
+	        $('#messages,.sucher, #messages-right').fadeOut(200, function(){ $(this).remove(); });
+	        
+	        // $('#messages,.sucher, #messages-right').addClass('display-none');
+	        
+	      	// $('#myCanvasContainer').addClass('display-none');
+	      	
+	        // $( "#end" ).load( "index-end.html" );
+	        // $('#messages, #messages-right').addClass('display-none').removeClass("foreground");
+	      }
+	    
+
+	  });
+	})();
+	
+</script>
+
+
+    <script src="bootstrap/js/three.min.js"></script>
+    <script src="bootstrap/js/StereoEffect.js"></script>
+    
+    
+    		
+		<script src="bootstrap/js/Detector.js"></script>
+		<script src="bootstrap/js/OrbitControls.js"></script>
+		<script src="bootstrap/js/DeviceOrientationControls.js"></script>
+    
+    
+    <script>
+      var scene,
+          camera, 
+          renderer,
+          element,
+          container,
+          effect,
+          video,
+          canvas,
+          context,
+          themes = ['inverse'],
+          currentTheme = 0,                                                   
+          lookingAtGround = false;
+
+      init();
+
+      function init() {
+        scene = new THREE.Scene();
+        camera = new THREE.PerspectiveCamera(90, window.innerWidth / window.innerHeight, 0.001, 700);
+        camera.position.set(0, 15, 0);
+        scene.add(camera);
+
+        renderer = new THREE.WebGLRenderer();
+        element = renderer.domElement;
+        container = document.getElementById('webglviewer');
+        container.appendChild(element);
+
+        effect = new THREE.StereoEffect(renderer);
+
+      //  element.addEventListener('click', fullscreen, false);
+
+        video = document.createElement('video');
+        video.setAttribute('autoplay', true);
+        
+        var options = {
+          video: {
+            optional: [{facingMode: "environment"}]
+          }
+        };
+
+        navigator.getUserMedia = navigator.getUserMedia ||
+        navigator.webkitGetUserMedia || navigator.mozGetUserMedia;
+
+        if (typeof MediaStreamTrack === 'undefined' && navigator.getUserMedia) {
+          alert('This browser doesn\'t support this demo :(');
+        } else {
+          MediaStreamTrack.getSources(function(sources) {
+            for (var i = 0; i !== sources.length; ++i) {
+              var source = sources[i];
+              if (source.kind === 'video') {
+                if (source.facing && source.facing == "environment") {
+                  options.video.optional.push({'sourceId': source.id});
+                }
+              }
+            }
+            
+            navigator.getUserMedia(options, streamFound, streamError);
+          });
+        }
+
+        function streamFound(stream) {
+          document.body.appendChild(video);
+          video.src = URL.createObjectURL(stream);
+          video.style.width = '100%';
+          video.style.height = '100%';
+          video.play();
+
+          canvas = document.createElement('canvas');
+          canvas.width = video.clientWidth;
+          canvas.height = video.clientHeight;
+          canvas.width = nextPowerOf2(canvas.width);
+          canvas.height = nextPowerOf2(canvas.height);
+
+          function nextPowerOf2(x) { 
+              return Math.pow(2, Math.ceil(Math.log(x) / Math.log(2))); 
+          }
+
+          context = canvas.getContext('2d');
+          
+          texture = new THREE.Texture(canvas);
+          texture.context = context;
+
+          var cameraPlane = new THREE.PlaneBufferGeometry(1920, 1280);
+
+          cameraMesh = new THREE.Mesh(cameraPlane, new THREE.MeshBasicMaterial({
+            color: 0xffffff, opacity: 1, map: texture
+          }));
+          cameraMesh.position.z = -600;
+
+          scene.add(cameraMesh);
+        }
+
+        function streamError(error) {
+            console.log('Stream error: ', error);
+          }
+
+        animate();
+      }
+
+
+      function animate() {
+        
+    	  
+    	  if (context) {
+          context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+     
+
+          if (video.readyState === video.HAVE_ENOUGH_DATA) {
+            texture.needsUpdate = true;
+          }
+          
+          
+        }
+
+        requestAnimationFrame(animate);
+
+        update();
+        render();
+      } 
+      
+      
+
+      function resize() {
+        var width = container.offsetWidth;
+        var height = container.offsetHeight;
+
+        camera.aspect = width / height;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(width, height);
+        effect.setSize(width, height);
+      }
+
+      function update(dt) {
+        resize();
+
+        camera.updateProjectionMatrix();
+      }
+
+      function render(dt) {
+        effect.render(scene, camera);
+      }
+
+      function fullscreen() {
+        if (container.requestFullscreen) {
+          container.requestFullscreen();
+        } else if (container.msRequestFullscreen) {
+          container.msRequestFullscreen();
+        } else if (container.mozRequestFullScreen) {
+          container.mozRequestFullScreen();
+        } else if (container.webkitRequestFullscreen) {
+          container.webkitRequestFullscreen();
+        }
+      }
+     </script>
+     <div id="endpage" class="additional-content display-none"></div>
+	 
+  </body>
+
+<script>
+$(document).ready(function() {
+$.ajax({
+     url: "https://dhruvsudh.appspot.com/_ah/api/hud/v1/container",
+     contentType:'json',    
+     success:function(data)
+     {
+        console.log("Data from Server"+JSON.stringify(data));
+     },
+     error:function(jqXHR,textStatus,errorThrown)
+     {
+        console.log("You can not send Cross Domain AJAX requests: "+errorThrown);
+     }
+    });
+  
+});
+
+
+</script>
+</html>
