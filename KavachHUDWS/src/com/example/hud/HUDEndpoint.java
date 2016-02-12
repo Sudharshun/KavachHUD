@@ -6,7 +6,7 @@ import com.google.api.server.spi.config.Api;
 public class HUDEndpoint {
  public Container getThing() {
   Container c = new Container();
-  c.Text = "Hello sai ram world!";
+  c.Text = "Hello sai ram ram world!";
   return c;
  }
   
